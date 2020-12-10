@@ -1,4 +1,5 @@
 //function that gets called just before the api
+const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const protect = asyncHandler(async (req, res, next) => {
   let token;
@@ -7,10 +8,11 @@ const protect = asyncHandler(async (req, res, next) => {
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
+    console.log(req.headers);
     try {
       token = req.headers.authorization.split(" ")[1];
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.SECRET);
 
       req.user = await User.findById(decoded.id).select("-password");
 

@@ -11,7 +11,7 @@ const { protect } = require("../../middleware/auth");
 //generate jwt function
 const createToken = require("../../utils/createToken");
 
-router.get("/test", protect, async (req, res) => {
+router.get("/test", async (req, res) => {
   res.json({ msg: "Hello" });
 });
 
@@ -41,6 +41,7 @@ router.post(
           _id: user._id,
           name: user.name,
           email: user.email,
+          profile_pic: user.profile_pic,
           isAdmin: user.isAdmin,
           token,
         });
@@ -49,8 +50,28 @@ router.post(
         throw new Error("Invalid password");
       }
     } else {
-      res.status(401);
+      res.status(500);
       throw new Error("Invalid email");
+    }
+  })
+);
+router.get(
+  "/profile/:id",
+  protect,
+  asyncHandler(async (req, res) => {
+    // console.log(req.user);
+    let { id } = req.params;
+    //find the user by email
+    const user = await User.findById(id).select("-password");
+    console.log(user);
+
+    //if the user exist we then check the password
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    } else {
+      res.json(user).status(200);
     }
   })
 );
